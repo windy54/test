@@ -2,8 +2,15 @@
 
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
+let whiteonbutton = document.getElementById("WhiteOnForm")
 window.addEventListener('load', onload);
+whiteonbutton.addEventListener("submit", (e)=>{
+    e.preventDefault();
+let white = document.getElementById("WhiteOn");
+console.log("white $white " );
+websocket.send(white.toString() );
 
+})
 function onload(event) {
     initWebSocket();
 }

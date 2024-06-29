@@ -17,6 +17,11 @@
 const char* ssid = "Thegales";
 const char* password = "talk2thegales";
 int brightness = 0;
+int whiteOn = 7;
+int whiteOff = 20;
+
+const char* PARAM_INPUT = "value";
+const char* PARAM_INPUT_1 ="WhiteOn";
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -118,11 +123,21 @@ void notifyClients(String sliderValues) {
   ws.textAll(sliderValues);
 }
 
+void notFound(AsyncWebServerRequest *request) {
+  request->send(404, "text/plain", "Not found");
+}
+/// @brief 
+/// @param arg 
+/// @param data 
+/// @param len 
+
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
     message = (char*)data;
+    Serial.print(" handlewebsocketmessage ");
+    Serial.println(message);
     if (message.indexOf("1s") >= 0) {
       sliderValue1 = message.substring(2);
       writeBrightness(sliderValue1.toInt());
@@ -164,6 +179,10 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     case WS_EVT_PONG:
     case WS_EVT_ERROR:
       break;
+    default:
+      Serial.print(" OnEvent : ");
+      Serial.println(type);
+      break;
   }
 }
 
@@ -201,6 +220,25 @@ void setup() {
     request->send(LittleFS, "/index.html", "text/html");
   });
   
+// Send a GET request to <ESP_IP>/get?input1=<inputMessage>
+  server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputMessage;
+    String inputParam;
+    // GET input1 value on <ESP_IP>/get?input1=<inputMessage>
+    if (request->hasParam(PARAM_INPUT_1)) {
+      inputMessage = request->getParam(PARAM_INPUT_1)->value();
+      inputParam = PARAM_INPUT_1;
+    }
+    else {
+      inputMessage = "No message sent";
+      inputParam = "none";
+    }
+    Serial.println(inputMessage);
+    request->send(200, "text/html", "HTTP GET request sent to your ESP on input field (" 
+                                     + inputParam + ") with value: " + inputMessage +
+                                     "<br><a href=\"/\">Return to Home Page</a>");
+  });
+
   server.serveStatic("/", LittleFS, "/");
 
   // Start server
