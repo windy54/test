@@ -155,7 +155,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     }    
     if (message.indexOf("3s") >= 0) {
       sliderValue3 = message.substring(2);
-      dutyCycle3 = map(sliderValue3.toInt(), 0, 100, 0, 255);
+ processor     dutyCycle3 = map(sliderValue3.toInt(), 0, 100, 0, 255);
       Serial.println(dutyCycle3);
       Serial.print(getSliderValues());
       notifyClients(getSliderValues());
@@ -186,7 +186,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-void initWebSocket() {
+vprocessoroid initWebSocket() {
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 }
